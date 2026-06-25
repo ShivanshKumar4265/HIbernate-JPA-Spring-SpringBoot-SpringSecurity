@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"> <!--
+	bean definitions here -->
+
+	<bean id="employee" class="com.jmd.springframe.Employee">
+		<!-- Property tag use used for setter injection, not contructr
+		injection-->
+
+		<!-- <property name="id" value="456"></property>
+		
+		 <property name="name" value="Shivansh Kumar"></property>
+		 <property name="email" value="shiv@gmail.com"></property-->
+
+		<!-- Property tag use used for constructior injection, wiht index and
+		both name-->
+
+
+		<constructor-arg index="0" value="Shivansh Kumar"></constructor-arg>
+		<constructor-arg index="1" value="Shivansh@gmai.com"></constructor-arg>
+		<constructor-arg index="2" value="78"></constructor-arg>
+
+
+	</bean>
+
+
+</beans>
