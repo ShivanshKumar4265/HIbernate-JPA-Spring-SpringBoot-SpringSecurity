@@ -1,0 +1,231 @@
+Hirerachy Of IOC
+ApplicationContext(Interface) implements BeanFactory(Interface)
+
+Implementation of ApplicationContext
+
+	1. ClassPathXmlApplicationContext (Class)
+	2. AnnotaionConfigApplicationContext (Class)
+	3. FileSystemApplicationContext (Class)
+	
+	
+DependencyInjection
+	It is desing pattern in which an object dependency are provided by IOC
+	container, instead of creating object it self.
+	Depedency Injection, inject one class object into other class object
+	and it also inject object value etc........
+
+	Types of DI
+		1. Contructor Injection
+		2. Setter Method Injection
+		3. Feild or Variable Injection
+		
+	1. Contructor Injection 
+			-> Mechanism where the required dependecies of a class are provided to
+			it constructor, when the object is Created.
+			wiht the help of construcor injection, we can store the value inside objet
+			and store one object into another object through parameterized contructor, 
+			by using xml or annotaion configration.
+			
+			e.g 
+				class Trainer{
+					Student st;
+					public Trainer(Student st){
+						this.st = st;	
+					}
+				}
+			
+	2. Setter Method Injection
+			-> mechanism in which spring injects depedencies( one object into another 
+			oject, and value inside object ), by calling setter method, 
+			after creating the Bean by IOC.
+			
+			-> it is use for optional dependencies, but it doent guarantee, that 
+			required depedencies are available at object creation time, therefore, 
+			contructor injection is generally prefered for mandatory depedencies.
+			
+			-> it supports xml and annotaion based configuration.
+			
+			
+// Difference between contrucotor and setter injection
+// Spring xml configuration
+// <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"> <!-- bean definitions here -->
+
+		<bean id="employee" class="com.jmd.springframe.Employee">
+		<!-- Property tag use used for setter injection, not contructr
+		injection-->
+
+		<!-- <property name="id" value="456"></property>
+		
+		 <property name="name" value="Shivansh Kumar"></property>
+		 <property name="email" value="shiv@gmail.com"></property-->
+
+		<!-- Property tag use used for constructior injection, wiht index and
+		both name-->
+
+
+		<constructor-arg index="0" value="Shivansh Kumar"></constructor-arg>
+		<constructor-arg index="1" value="Shivansh@gmai.com"></constructor-arg>
+		<constructor-arg index="2" value="78"></constructor-arg>
+
+
+	</bean>
+
+</beans>
+
+
+Spring Core Annotaion
+	1. @Component
+		It is sterotype class level annoation, which is used to create and register
+		beans (java objects)  in the spring IoC container. It marks class as a spring
+		manged component which wpring IoC Container automatically detects it during component 
+		scanning. for ex :
+		
+		@Component
+		class Employee{
+			
+		} 
+
+		It is equivalent to Bean tag
+		<bean id="emp" class="com.jmd.classes.Emplyee"/>
+		
+		@Component has multiple specialized annotion such as
+			a. @Service - used on the top of service class onlye
+			b. @Repository - used on the top of Dao class or repository class and it
+			also enables databasae exception translation
+			c. @Controller - it used on the top of controller class
+			in spring mvc desing pattern only
+		
+	Above annotion functionality are the same as @component annotaion, but, 
+	we use on different classes
+	
+	2. DependencyInjection Annotiaon
+		1. @Autowired - we write in the top of reference variable, it automatically, 
+						injects one object reference into another object, spring Ioc
+						automatically finds a matching beans and inject it. for example
+						
+						equivalent to 
+						<contructor ref="employeeDao"/>
+						
+						@Service
+						class EmployeeSerice{
+						
+							@Autowired
+							private EmployeeDao ep;
+							
+						}
+						
+		2. @Primary - it is class level and method level annoation, it marks a java object
+					  as default object when multiple object are present. While injecting one
+					  object into another object.object to take
+					  it give prefernnce which 
+					  Example: 
+					  
+					  interface Student{
+					  
+					  }
+					  
+					  @Primary
+					  @Component
+					  public class Nobita imlements Student{
+					  
+					  }
+					  
+					  @Component
+					  public class Dora imlements Student{
+					  
+					  }
+					  
+					
+					  @Service
+					  public class StudentDao{
+						
+						@Autowired
+						Student student;  
+						
+						// since student have two implemntation class
+						// the @primary annoatin will resolve which one to inject
+						
+					  }
+					  
+		3. @Qualifier - It always used with @Autowired to detect anyone bean from the
+						multiple beans.
+					  
+					  
+					  @Service
+					  public class StudentDao{
+						
+						@Autowired
+						@Qualifier(name = "dora")
+						Student student;  
+						
+						// since student have two implemntation class
+						// the @primary annoatin will resolve which one to inject
+						
+					  }
+					  
+					 // autowired inject the dependency, primary set thdefault if qulifirer no present then
+					 // it inject the defualt else the qulifier one
+					 
+	3. Configuration Annotation
+		1. @Configration - It delclare class as configuration class, and it is class level annoation
+						it is used to replace the xml configuration file.
+						it si equivalent to myspring.xml
+						
+						@Configuration
+						public class MySpringConfig{
+							
+						}
+						
+						it also indicates, a class contains bean definations
+						
+		
+			
+		2. @Bean - it method level annoation which is used inside configuration class
+				   to define a bean, manually.
+				   Inbuilt calss doesnt have any annoatin, to give those annatoin
+				   we use this annnoation
+				   
+				   example: 
+				   @Configuration
+				   public class MySpringConfig{
+							
+						@Bean
+				   		public Math getMath(){
+				   			returh new Math();
+				   		}	
+				   	
+				   }
+				   
+	4. Component Scanning
+		@ComponenetScan - it tell spring IOC from where to search, annotated classes
+						  from which package. it is used to declare base package.it always
+						  use on the top of configuration class
+						  
+						  @ComponentScan(basePackage="com.jmd.java")
+						  @Configuration
+				   		  public class MySpringConfig{
+							
+							@Bean
+				   			public Math getMath(){
+				   				returh new Math();
+				   			}	
+				   	
+				  		}
+				  		
+				  		
+//@PostContruct - it run after depedency injection is cimpleted
+//@Predestroy
+//@Valid
+		
+				   
+				   
+				   
+			
+
+	
+	
