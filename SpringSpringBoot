@@ -218,9 +218,116 @@ Spring Core Annotaion
 				  		}
 				  		
 				  		
-//@PostContruct - it run after depedency injection is cimpleted
-//@Predestroy
-//@Valid
+	5. @PostContruct - By putting @PostConstruct on a method, you tell Spring: 
+					  "Wait until the object is completely built AND all its dependencies are 
+					   plugged in. The very second that setup is done, run this method automatically."
+					   
+					   
+					   @Component
+					   public class CacheManager {
+
+							@Autowired
+							private ProductRepository productRepository; // Spring injects this in Step 2
+
+							private List<String> productCache;
+
+							// 1. Constructor runs first (productRepository is still null here!)
+							public CacheManager() { } 
+
+							// 2. Spring injects the productRepository...
+
+							// 3. NOW this runs automatically!
+							@PostConstruct
+							public void init() {
+								// Safe to use productRepository now! It is not null.
+								this.productCache = productRepository.findAllNames();
+								System.out.println("Cache successfully loaded after dependency injection!");
+							}
+					  }
+					   
+	6. @Predestroy   If @PostConstruct is the "Welcome to life" alarm, @PreDestroy is the "Graceful Death" warning.
+					 When your application shuts down (for example, you stop your Tomcat server or restart your Spring Boot app),
+					 Spring destroys all your objects to free up the computer's RAM.
+					 Why do we need it?
+					 Imagine your Java object opened a heavy connection to a remote file server or 
+  					 a cloud bucket. If Spring just kills your object instantly, that network connection
+   	 				 might stay hanging open on the server, wasting resources and bandwidth.
+   	 				 
+   	 				 "Clean Up Before You Leave"
+
+					 By putting @PreDestroy on a method, you tell Spring: "Hey, right before you 
+	  				physically delete this object from memory, let me clean up my mess first."
+	  				
+	  				
+	  				
+	  				By putting @PreDestroy on a method, you are telling Spring: 
+	  				"Hey, the cleaning crew is about to delete me. Before they wipe 
+	  				me out, give me 1 second to run this specific method so I can turn 
+	  				off the lights and close my files safely."
+	  				
+					@Component
+					public class DatabaseBackupService {
+
+						private FileWriter backupFile;
+
+						// ... your application runs and writes data to the file ...
+
+						@PreDestroy
+						public void closeEverything() {
+							// Spring calls this AUTOMATICALLY right before deleting this object
+							try {
+								if (backupFile != null) {
+									backupFile.flush(); // Make sure the last piece of data is saved
+									backupFile.close(); // Safely unlock the file
+									System.out.println("File saved and closed safely. Goodbye!");
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					The moment the application shuts down or decides it doesn't 
+					need that Bean anymore, Spring steps in just before the 
+					Garbage Collector wipes it out and says: "Hold on, let 
+					me check this object for any @PreDestroy notes." Spring 
+					then runs that method completely, and only after it finishes 
+					does the Garbage Collector delete the object from memory.
+
+					There is just one very important rule you need to know about 
+					how this works under the hood.
+
+					The Crucial Rule: Only ONE Method
+					You can have multiple methods in your class, but Spring will 
+					only look for the specific one marked with the @PreDestroy badge.
+
+			 		If your object is dying, only the method with the @PreDestroy
+			 		annotation gets called. The other regular methods are 
+			 		completely ignored.
+			 		
+			 		@Component
+					public class MyService {
+
+						// ❌ This does NOT get called when the object dies
+						public void printHello() {
+							System.out.println("Hello");
+						}
+
+						// ❌ This does NOT get called when the object dies
+						public void doSomething() {
+							System.out.println("Working...");
+						}
+
+						//  THIS IS THE ONLY ONE THAT RUNS!
+						@PreDestroy
+						public void cleanUpBeforeDeath() {
+							System.out.println("Closing database lines now!");
+						}
+					}
+	  				
+	7. @Valid       @Valid belongs to the validation framework. Its job is 
+				    to make sure the data coming into your application isn't broken, 
+		   			empty, or malicious before it touches your core business logic.
 		
 				   
 				   
